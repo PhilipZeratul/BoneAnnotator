@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QImage>
 
+#include <opencv2/imgproc.hpp>
+
 namespace Ui {
 class ScribbleArea;
 }
@@ -19,16 +21,24 @@ public:
     explicit ScribbleArea(QWidget *parent = 0);
     ~ScribbleArea();
     bool openImage(const QString &fileName);
+    void setZoomScale(int scale);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    Ui::ScribbleArea *ui;
+    void resizeImage(cv::Mat originalMat, cv::Mat resizedMat, int scale);
+    QImage matToQImage(cv::Mat mat);
+    cv::Mat qImageToMat(QImage qImage);
 
-    QImage image;
+    Ui::ScribbleArea *ui;
+    QImage originalImage;
+    QImage displayImage;
+    cv::Mat originalMat;
+    cv::Mat displayMat;
     bool isModified;
     bool isScribbling;
+    int zoomScale;
 };
 
 #endif // SCRIBBLEAREA_H

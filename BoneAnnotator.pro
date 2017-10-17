@@ -35,3 +35,8 @@ HEADERS += \
 FORMS += \
         boneannotator.ui \
     scribblearea.ui
+
+# The following lines tells Qmake to use pkg-config for opencv
+QT_CONFIG -= no-pkg-config
+CONFIG  += link_pkgconfig
+PKGCONFIG += opencv
