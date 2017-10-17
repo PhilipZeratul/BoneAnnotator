@@ -31,7 +31,7 @@ private:
     void constructImageList(QDirIterator& dirIter);
     bool checkIsImage(QFileInfo fileInfo);
     void constructListWidget();
-    void onImageListItemClicked();
+    void onImageListItemSelectionChanged();
     void openImageInScribbleArea(const QString filePath);
 
     ScribbleArea *scribbleArea;

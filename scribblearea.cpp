@@ -20,31 +20,17 @@ bool ScribbleArea::openImage(const QString &fileName)
     if (!loadedImage.load(fileName))
         return false;
 
-    //QSize newSize = loadedImage.size().expandedTo(size());
-    //resizeImage(&loadedImage, newSize);
-
     image = loadedImage;
-
-
 
     isModified = false;
     update();
-
     return true;
 }
 
 void ScribbleArea::paintEvent(QPaintEvent *event)
 {
-
     QRect dirtyRect = event->rect();
     QPainter painter(this);
 
-
-    //QImage image("/Users/ZhangPengfei/Desktop/Annotator_2/IMG_5249.png");
-
-
-
-    qInfo() << "paintEvent: image.size =" << image.size();
-    qInfo() << "panitEvent: rect.size =" << dirtyRect.size();
     painter.drawImage(dirtyRect, image, dirtyRect);
 }

@@ -18,7 +18,7 @@ BoneAnnotator::~BoneAnnotator()
 void BoneAnnotator::createActions()
 {
     connect(ui->action_OpenDirectory, &QAction::triggered, this, &BoneAnnotator::openDirectory);
-    connect(ui->listWidget_ImageList, &QListWidget::itemSelectionChanged, this, &BoneAnnotator::onImageListItemClicked);
+    connect(ui->listWidget_ImageList, &QListWidget::itemSelectionChanged, this, &BoneAnnotator::onImageListItemSelectionChanged);
 }
 
 void BoneAnnotator::openDirectory()
@@ -67,14 +67,16 @@ void BoneAnnotator::constructListWidget()
     ui->listWidget_ImageList->addItems(fileNameList);
 }
 
-void BoneAnnotator::onImageListItemClicked()
+void BoneAnnotator::onImageListItemSelectionChanged()
 {
-    QString filePath = directory + "/" + ui->listWidget_ImageList->selectedItems()[0]->text();
-    openImageInScribbleArea(filePath);
+    if (ui->listWidget_ImageList->selectedItems().count() > 0)
+    {
+        QString filePath = directory + "/" + ui->listWidget_ImageList->selectedItems()[0]->text();
+        openImageInScribbleArea(filePath);
+    }
 }
 
 void BoneAnnotator::openImageInScribbleArea(const QString filePath)
 {
     scribbleArea->openImage(filePath);
-    qInfo() << filePath;
 }
