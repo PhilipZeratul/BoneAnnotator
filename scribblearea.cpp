@@ -22,13 +22,22 @@ bool ScribbleArea::openImage(const QString &fileName)
         return false;
 
     originalImage = loadedImage;
-    originalMat = qImageToMat(&originalImage);
-    resizeImage(&originalMat, &displayMat, zoomScale);
-    displayImage = matToQImage(&displayMat);
+    resizeDisplayImage();
 
     isModified = false;
     update();
     return true;
+}
+
+void ScribbleArea::setZoomScale(int scale)
+{
+    zoomScale = scale;
+}
+
+void ScribbleArea::resizeDisplayImage()
+{
+    resizeImage(&originalImage, &displayImage, zoomScale);
+    update();
 }
 
 void ScribbleArea::paintEvent(QPaintEvent *event)
@@ -39,14 +48,12 @@ void ScribbleArea::paintEvent(QPaintEvent *event)
     painter.drawImage(dirtyRect, displayImage, dirtyRect);
 }
 
-void ScribbleArea::setZoomScale(int scale)
+void ScribbleArea::resizeImage(QImage *sourceImage, QImage *resizedImage, int scale)
 {
-    zoomScale = scale;
-}
-
-void ScribbleArea::resizeImage(cv::Mat *originalMat, cv::Mat *resizedMat, int scale)
-{
-    cv::resize(*originalMat, *resizedMat, cv::Size(0, 0), scale, scale);
+    cv::Mat sourceMat = qImageToMat(sourceImage);
+    cv::Mat resizedMat;
+    cv::resize(sourceMat, resizedMat, cv::Size(0, 0), scale, scale);
+    *resizedImage = matToQImage(&resizedMat);
 }
 
 cv::Mat ScribbleArea::qImageToMat(QImage *qImage)

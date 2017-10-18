@@ -84,4 +84,5 @@ void BoneAnnotator::openImageInScribbleArea(const QString filePath)
 void BoneAnnotator::on_spinBox_Zoom_valueChanged(int arg1)
 {
     scribbleArea->setZoomScale(arg1);
+    scribbleArea->resizeDisplayImage();
 }
