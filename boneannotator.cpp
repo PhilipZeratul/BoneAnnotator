@@ -35,6 +35,7 @@ void BoneAnnotator::openDirectory()
     QDirIterator dirIter(directory);
     constructImageList(dirIter);
     constructListWidget();
+    scribbleArea->setIsImageOpened(false);
 }
 
 void BoneAnnotator::constructImageList(QDirIterator& dirIter)

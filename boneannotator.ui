@@ -25,16 +25,6 @@
     <item row="0" column="2" rowspan="3">
      <widget class="ScribbleArea" name="widget_ScribbleArea" native="true"/>
     </item>
-    <item row="0" column="3" rowspan="3">
-     <widget class="QListWidget" name="listWidget_BoneList">
-      <property name="maximumSize">
-       <size>
-        <width>200</width>
-        <height>16777215</height>
-       </size>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0" colspan="2">
      <widget class="QListWidget" name="listWidget_ImageList">
       <property name="maximumSize">
@@ -83,6 +73,16 @@
       </property>
       <property name="maximum">
        <number>10</number>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3" rowspan="3">
+     <widget class="QListWidget" name="listWidget_BoneList">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
       </property>
      </widget>
     </item>
