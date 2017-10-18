@@ -27,9 +27,9 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    void resizeImage(cv::Mat originalMat, cv::Mat resizedMat, int scale);
-    QImage matToQImage(cv::Mat mat);
-    cv::Mat qImageToMat(QImage qImage);
+    void resizeImage(cv::Mat *originalMat, cv::Mat *resizedMat, int scale);
+    cv::Mat qImageToMat(QImage *qImage);
+    QImage matToQImage(cv::Mat *mat);
 
     Ui::ScribbleArea *ui;
     QImage originalImage;

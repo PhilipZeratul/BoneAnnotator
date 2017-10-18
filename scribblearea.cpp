@@ -6,7 +6,7 @@ ScribbleArea::ScribbleArea(QWidget *parent) :
     ui(new Ui::ScribbleArea)
 {
     ui->setupUi(this);
-    zoomScale = 2;
+    zoomScale = 1;
 }
 
 ScribbleArea::~ScribbleArea()
@@ -22,12 +22,9 @@ bool ScribbleArea::openImage(const QString &fileName)
         return false;
 
     originalImage = loadedImage;
-//    originalMat = qImageToMat(originalImage);
-
-//    resizeImage(originalMat, displayMat, zoomScale);
-
-//    displayImage = matToQImage(displayMat);
-    displayImage = originalImage;
+    originalMat = qImageToMat(&originalImage);
+    resizeImage(&originalMat, &displayMat, zoomScale);
+    displayImage = matToQImage(&displayMat);
 
     isModified = false;
     update();
@@ -45,23 +42,20 @@ void ScribbleArea::paintEvent(QPaintEvent *event)
 void ScribbleArea::setZoomScale(int scale)
 {
     zoomScale = scale;
-    qInfo() << "zoomScale =" << zoomScale;
 }
 
-void ScribbleArea::resizeImage(cv::Mat originalMat, cv::Mat resizedMat, int scale)
+void ScribbleArea::resizeImage(cv::Mat *originalMat, cv::Mat *resizedMat, int scale)
 {
-    cv::resize(originalMat, resizedMat, cv::Size(0, 0), scale, scale);
-
-     qInfo() << "originalMat.size =" << originalMat.rows << originalMat.cols << "resizeMat.size =" << resizedMat.rows << resizedMat.cols;
+    cv::resize(*originalMat, *resizedMat, cv::Size(0, 0), scale, scale);
 }
 
-QImage ScribbleArea::matToQImage(cv::Mat mat)
+cv::Mat ScribbleArea::qImageToMat(QImage *qImage)
 {
-    return QImage(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB32);
+    return cv::Mat(qImage->height(), qImage->width(),
+                          CV_8UC4, qImage->bits(), qImage->bytesPerLine());
 }
 
-cv::Mat ScribbleArea::qImageToMat(QImage qImage)
+QImage ScribbleArea::matToQImage(cv::Mat *mat)
 {
-    return cv::Mat(qImage.height(), qImage.width(),
-                   CV_8UC3, qImage.bits(), qImage.bytesPerLine());
+    return QImage(mat->data, mat->cols, mat->rows, mat->step, QImage::Format_RGB32);
 }
