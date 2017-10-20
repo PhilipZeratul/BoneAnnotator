@@ -8,11 +8,18 @@ BoneAnnotator::BoneAnnotator(QWidget *parent) :
     ui->setupUi(this);
     createActions();
     scribbleArea = ui->widget_ScribbleArea;
+    scribbleArea->setZoomScale(ui->spinBox_Zoom->value());
 }
 
 BoneAnnotator::~BoneAnnotator()
 {
     delete ui;
+}
+
+// TODO: press space to changed to next image.
+void BoneAnnotator::keyReleaseEvent(QKeyEvent *event)
+{
+    qInfo() << "Key pressed:" << event->text();
 }
 
 void BoneAnnotator::createActions()
@@ -85,5 +92,5 @@ void BoneAnnotator::openImageInScribbleArea(const QString filePath)
 void BoneAnnotator::on_spinBox_Zoom_valueChanged(int arg1)
 {
     scribbleArea->setZoomScale(arg1);
-    scribbleArea->resizeDisplayImage();
+    scribbleArea->resizeOriginalImage();
 }

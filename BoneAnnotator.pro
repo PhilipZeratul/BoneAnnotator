@@ -8,6 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+INCLUDEPATH += /Users/ZhangPengfei/Work/RapidJson/rapidjson/include
 TARGET = BoneAnnotator
 TEMPLATE = app
 

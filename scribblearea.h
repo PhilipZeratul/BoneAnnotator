@@ -11,6 +11,10 @@
 #include <opencv2/imgproc.hpp>
 #include <vector>
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
 namespace Ui {
 class ScribbleArea;
 }
@@ -25,13 +29,12 @@ public:
     bool openImage(const QString &fileName);
     void setZoomScale(int scale);
     void setIsImageOpened(bool value);
-    void resizeDisplayImage();
+    void resizeOriginalImage();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:    
     void resizeImage(QImage *sourceImage, QImage *resizedImage, int scale);
@@ -49,12 +52,12 @@ private:
     QImage originalImage;
     QImage displayImage;
     cv::Mat originalMat;
-    cv::Mat displayMat;
     bool isModified;
     bool isScribbling;
     int zoomScale;
     bool isImageOpend;
     std::vector<std::vector<QPoint>> boneVector;
+    QPoint tempBonePoint;
 };
 
 #endif // SCRIBBLEAREA_H

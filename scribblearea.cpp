@@ -6,7 +6,7 @@ ScribbleArea::ScribbleArea(QWidget *parent) :
     ui(new Ui::ScribbleArea)
 {
     ui->setupUi(this);
-    zoomScale = 1;
+    isScribbling = false;
 }
 
 ScribbleArea::~ScribbleArea()
@@ -16,17 +16,18 @@ ScribbleArea::~ScribbleArea()
 
 bool ScribbleArea::openImage(const QString &fileName)
 {
+    isModified = false;
+    isImageOpend = true;
+    isScribbling = false;
+
     qInfo() << fileName;
     QImage loadedImage;
     if (!loadedImage.load(fileName))
         return false;
 
-    originalImage = loadedImage;
-    resizeDisplayImage();
-
-    isModified = false;
-    isImageOpend = true;
     boneVector.clear();
+    originalImage = loadedImage;
+    resizeOriginalImage();
 
     update();
     return true;
@@ -42,7 +43,7 @@ void ScribbleArea::setIsImageOpened(bool value)
     isImageOpend = value;
 }
 
-void ScribbleArea::resizeDisplayImage()
+void ScribbleArea::resizeOriginalImage()
 {
     resizeImage(&originalImage, &displayImage, zoomScale);
     drawBone();
@@ -65,38 +66,36 @@ void ScribbleArea::mousePressEvent(QMouseEvent *event)
         {
             boneVector.push_back(std::vector<QPoint>());
             boneVector.back().push_back(event->pos() / zoomScale);
-
-            qInfo() << "mouse right button pressed." << event->pos() << "boneVector.size =" << boneVector.size();
         }
 
         if (event->button() == Qt::LeftButton)
         {
             if (boneVector.size() > 0)
                 boneVector.back().push_back(event->pos() / zoomScale);
-
-            qInfo() << "mouse left button pressed." << event->pos();
-
         }
+        isScribbling = true;
         drawBone();
 
 
+
         ///
-        test_ShowBoneList();
+        //test_ShowBoneList();
     }
 }
 
 void ScribbleArea::mouseMoveEvent(QMouseEvent *event)
 {
-    //if ((event->buttons() & Qt::LeftButton) && scribbling)
-    //    drawLineTo(event->pos());
-}
-
-void ScribbleArea::mouseReleaseEvent(QMouseEvent *event)
-{
-    /*if (event->button() == Qt::LeftButton && scribbling) {
-        drawLineTo(event->pos());
-        scribbling = false;
-    }*/
+    if (isImageOpend && isClickedOnImage(event->pos()) && isScribbling)
+    {
+        tempBonePoint = event->pos();
+        drawBone();
+    }
+    else
+    {
+        tempBonePoint.setX(0);
+        tempBonePoint.setY(0);
+    }
+    qInfo() << "mouseMoveEvent: " << tempBonePoint << "isImageOpend =" << isImageOpend << "isClickedOnImage = " << isClickedOnImage(event->pos()) << "isScribbling =" << isScribbling;
 }
 
 void ScribbleArea::resizeImage(QImage *sourceImage, QImage *resizedImage, int scale)
@@ -110,7 +109,7 @@ void ScribbleArea::resizeImage(QImage *sourceImage, QImage *resizedImage, int sc
 cv::Mat ScribbleArea::qImageToMat(QImage *qImage)
 {
     return cv::Mat(qImage->height(), qImage->width(),
-                          CV_8UC4, qImage->bits(), qImage->bytesPerLine());
+                   CV_8UC4, qImage->bits(), qImage->bytesPerLine());
 }
 
 QImage ScribbleArea::matToQImage(cv::Mat *mat)
@@ -128,9 +127,12 @@ bool ScribbleArea::isClickedOnImage(QPoint pos)
 
 void ScribbleArea::drawBone()
 {
-    int lineWidth = 2 * zoomScale;
-    int pointWidth = 4 * zoomScale;
+    resizeImage(&originalImage, &displayImage, zoomScale);
+
+    int lineWidth = 3 * zoomScale;
+    int pointWidth = 6 * zoomScale;
     int hue = 0;
+    int rad;
     QPainter painter(&displayImage);
     QColor color;
     QPoint startPoint;
@@ -140,7 +142,8 @@ void ScribbleArea::drawBone()
     for (int i = 0; i < (int)boneVector.size(); i++)
         for (int j = 0; j < (int)boneVector[i].size(); j++, hue += 15)
         {
-            hue = std::min(hue, 359);
+            hue = std::min(hue, 344);
+            color.setAlpha(255);
             painter.setPen(QPen(color.fromHsv(hue, 255, 255), lineWidth,
                                 Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             if (j == 0)
@@ -157,10 +160,19 @@ void ScribbleArea::drawBone()
             painter.setPen(QPen(color.fromHsv(hue, 255, 255), pointWidth,
                                 Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             painter.drawPoint(endPoint);
-            int rad = (pointWidth / 2) + 2;
-            update(QRect(startPoint, endPoint).normalized()
-                                              .adjusted(-rad, -rad, +rad, +rad));
+            rad = (pointWidth / 2) + 2;
         }
+
+    // Alpha not functioning
+    color = color.fromHsv(hue, 255, 255);
+    color.setAlpha(50);
+    painter.setPen(QPen(color, lineWidth,
+                        Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    qInfo() << "endPoint: " << endPoint << "tempBonePoint: " << tempBonePoint;
+    if (!tempBonePoint.isNull())
+        painter.drawLine(endPoint, tempBonePoint);
+
+    update();
 }
 
 

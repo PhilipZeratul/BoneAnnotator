@@ -23,6 +23,9 @@ public:
     explicit BoneAnnotator(QWidget *parent = 0);
     ~BoneAnnotator();
 
+protected:
+    void keyReleaseEvent(QKeyEvent *event) override;
+
 private slots:
     void on_spinBox_Zoom_valueChanged(int arg1);
 
