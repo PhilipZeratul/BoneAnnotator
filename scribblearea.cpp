@@ -19,6 +19,8 @@ bool ScribbleArea::openImage(const QString &fileName)
     isModified = false;
     isImageOpend = true;
     isScribbling = false;
+    tempBonePoint.setX(0);
+    tempBonePoint.setY(0);
 
     qInfo() << fileName;
     QImage loadedImage;
@@ -66,14 +68,14 @@ void ScribbleArea::mousePressEvent(QMouseEvent *event)
         {
             boneVector.push_back(std::vector<QPoint>());
             boneVector.back().push_back(event->pos() / zoomScale);
+            isScribbling = true;
         }
 
         if (event->button() == Qt::LeftButton)
         {
             if (boneVector.size() > 0)
                 boneVector.back().push_back(event->pos() / zoomScale);
-        }
-        isScribbling = true;
+        }        
         drawBone();
 
 
@@ -95,7 +97,7 @@ void ScribbleArea::mouseMoveEvent(QMouseEvent *event)
         tempBonePoint.setX(0);
         tempBonePoint.setY(0);
     }
-    qInfo() << "mouseMoveEvent: " << tempBonePoint << "isImageOpend =" << isImageOpend << "isClickedOnImage = " << isClickedOnImage(event->pos()) << "isScribbling =" << isScribbling;
+    qInfo() << "mouseMoveEvent:" << tempBonePoint << "isImageOpend =" << isImageOpend << "isClickedOnImage =" << isClickedOnImage(event->pos()) << "isScribbling =" << isScribbling;
 }
 
 void ScribbleArea::resizeImage(QImage *sourceImage, QImage *resizedImage, int scale)
@@ -163,14 +165,16 @@ void ScribbleArea::drawBone()
             rad = (pointWidth / 2) + 2;
         }
 
-    // Alpha not functioning
-    color = color.fromHsv(hue, 255, 255);
-    color.setAlpha(50);
-    painter.setPen(QPen(color, lineWidth,
-                        Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    qInfo() << "endPoint: " << endPoint << "tempBonePoint: " << tempBonePoint;
     if (!tempBonePoint.isNull())
+    {
+        color = color.fromHsv(hue, 255, 255);
+        color.setAlpha(50);
+        painter.setPen(QPen(color, lineWidth,
+                            Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        qInfo() << "endPoint: " << endPoint << "tempBonePoint: " << tempBonePoint;
+
         painter.drawLine(endPoint, tempBonePoint);
+    }
 
     update();
 }
