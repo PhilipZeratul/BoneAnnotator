@@ -9,6 +9,12 @@ BoneAnnotator::BoneAnnotator(QWidget *parent) :
     createActions();
     scribbleArea = ui->widget_ScribbleArea;
     scribbleArea->setZoomScale(ui->spinBox_Zoom->value());
+
+#ifdef Q_OS_WIN
+    pathSeperator = "//";
+#else
+    pathSeperator = "/";
+#endif
 }
 
 BoneAnnotator::~BoneAnnotator()
@@ -25,7 +31,6 @@ void BoneAnnotator::keyReleaseEvent(QKeyEvent *event)
 void BoneAnnotator::createActions()
 {
     connect(ui->action_OpenDirectory, &QAction::triggered, this, &BoneAnnotator::openDirectory);
-    connect(ui->listWidget_ImageList, &QListWidget::itemSelectionChanged, this, &BoneAnnotator::onImageListItemSelectionChanged);
 }
 
 void BoneAnnotator::openDirectory()
@@ -33,16 +38,25 @@ void BoneAnnotator::openDirectory()
     // Clear fileNameList to prepare for new image files.
     fileNameList.clear();
 
-    directory  = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                   QDir::currentPath(),
-                                                   QFileDialog::ShowDirsOnly
-                                                   | QFileDialog::DontResolveSymlinks);
-    qInfo() << "Opened Directory: " << directory;
+    imageDirectory = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                       QDir::currentPath(),
+                                                       QFileDialog::ShowDirsOnly
+                                                       | QFileDialog::DontResolveSymlinks);
+    qInfo() << "Opened Directory:" << imageDirectory;
 
-    QDirIterator dirIter(directory);
+    createBoneResultDir();
+
+    QDirIterator dirIter(imageDirectory);
     constructImageList(dirIter);
     constructListWidget();
     scribbleArea->setIsImageOpened(false);
+}
+
+void BoneAnnotator::createBoneResultDir()
+{
+    QString parentPath = imageDirectory.left(imageDirectory.lastIndexOf(pathSeperator));
+    resultDirectory = parentPath + pathSeperator + "BoneResult";
+    qInfo() << "Result Directory:" << resultDirectory;
 }
 
 void BoneAnnotator::constructImageList(QDirIterator& dirIter)
@@ -75,15 +89,6 @@ void BoneAnnotator::constructListWidget()
     ui->listWidget_ImageList->addItems(fileNameList);
 }
 
-void BoneAnnotator::onImageListItemSelectionChanged()
-{
-    if (ui->listWidget_ImageList->selectedItems().count() > 0)
-    {
-        QString filePath = directory + "/" + ui->listWidget_ImageList->selectedItems()[0]->text();
-        openImageInScribbleArea(filePath);
-    }
-}
-
 void BoneAnnotator::openImageInScribbleArea(const QString filePath)
 {
     scribbleArea->openImage(filePath);
@@ -93,4 +98,19 @@ void BoneAnnotator::on_spinBox_Zoom_valueChanged(int arg1)
 {
     scribbleArea->setZoomScale(arg1);
     scribbleArea->resizeOriginalImage();
+}
+
+void BoneAnnotator::on_listWidget_ImageList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    if (previous != NULL)
+    {
+        QString resultFilePath = resultDirectory + pathSeperator + previous->text();
+        qInfo() << "Previous Result Path:" << resultFilePath;
+        dataHandler.Serialize(scribbleArea->getBoneVector(), resultFilePath);
+    }
+    if (current != NULL)
+    {
+        QString filePath = imageDirectory + "/" + current->text();
+        openImageInScribbleArea(filePath);
+    }
 }

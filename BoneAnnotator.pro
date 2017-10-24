@@ -27,11 +27,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         boneannotator.cpp \
-    scribblearea.cpp
+    scribblearea.cpp \
+    datahandler.cpp
 
 HEADERS += \
         boneannotator.h \
-    scribblearea.h
+    scribblearea.h \
+    datahandler.h
 
 FORMS += \
         boneannotator.ui \

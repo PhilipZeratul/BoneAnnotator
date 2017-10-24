@@ -11,10 +11,6 @@
 #include <opencv2/imgproc.hpp>
 #include <vector>
 
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-
 namespace Ui {
 class ScribbleArea;
 }
@@ -30,6 +26,7 @@ public:
     void setZoomScale(int scale);
     void setIsImageOpened(bool value);
     void resizeOriginalImage();
+    std::vector<std::vector<QPoint>> *getBoneVector();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
