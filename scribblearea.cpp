@@ -27,7 +27,6 @@ bool ScribbleArea::openImage(const QString &fileName)
     if (!loadedImage.load(fileName))
         return false;
 
-    boneVector.clear();
     originalImage = loadedImage;
     resizeOriginalImage();
 
@@ -55,6 +54,12 @@ void ScribbleArea::resizeOriginalImage()
 std::vector<std::vector<QPoint>> *ScribbleArea::getBoneVector()
 {
     return &boneVector;
+}
+
+cv::Mat ScribbleArea::getResultImage()
+{
+    cv::Mat displayMat = qImageToMat(&displayImage);
+    return displayMat;
 }
 
 void ScribbleArea::paintEvent(QPaintEvent *event)

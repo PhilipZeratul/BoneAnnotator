@@ -30,7 +30,6 @@ protected:
 
 private slots:
     void on_spinBox_Zoom_valueChanged(int arg1);
-
     void on_listWidget_ImageList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
 private:
@@ -42,9 +41,9 @@ private:
     void constructImageList(QDirIterator& dirIter);
     bool checkIsImage(QFileInfo fileInfo);
     void constructListWidget();
-    void openImageInScribbleArea(const QString filePath);
 
     ScribbleArea *scribbleArea;
+    std::vector<std::vector<QPoint>> *boneVector;
     DataHandler dataHandler;
     QString imageDirectory;
     QString resultDirectory;

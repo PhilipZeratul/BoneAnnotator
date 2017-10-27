@@ -28,12 +28,14 @@ SOURCES += \
         main.cpp \
         boneannotator.cpp \
     scribblearea.cpp \
-    datahandler.cpp
+    datahandler.cpp \
+    rapidjsonhandler.cpp
 
 HEADERS += \
         boneannotator.h \
     scribblearea.h \
-    datahandler.h
+    datahandler.h \
+    rapidjsonhandler.h
 
 FORMS += \
         boneannotator.ui \

@@ -27,6 +27,7 @@ public:
     void setIsImageOpened(bool value);
     void resizeOriginalImage();
     std::vector<std::vector<QPoint>> *getBoneVector();
+    cv::Mat getResultImage();
 
 protected:
     void paintEvent(QPaintEvent *event) override;

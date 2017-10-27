@@ -6,7 +6,7 @@ using namespace std;
 DataHandler::DataHandler()
 {}
 
-void DataHandler::Serialize(vector<vector<QPoint>> *boneVector, QString savePath)
+void DataHandler::SerializeToJson(vector<vector<QPoint>> *boneVector, QString imagePath)
 {
     StringBuffer s;
     Writer<StringBuffer> writer(s);
@@ -20,7 +20,6 @@ void DataHandler::Serialize(vector<vector<QPoint>> *boneVector, QString savePath
         for (unsigned j = 0; j < boneVector->at(i).size(); j++)
         {
             QPoint point = boneVector->at(i).at(j);
-            writer.Key("Point");
             writer.StartArray();
             writer.Uint(point.x());
             writer.Uint(point.y());
@@ -30,7 +29,63 @@ void DataHandler::Serialize(vector<vector<QPoint>> *boneVector, QString savePath
     }
     writer.EndObject();
 
-    qInfo() << s.GetString();
+    QString jsonPath = GetJsonFilePath(imagePath);
+    SaveJsonToDisk(s.GetString(), jsonPath);
+}
+
+void DataHandler::SaveResultImage(cv::Mat resultImage, QString imagePath)
+{
+    QString resultImagePath = GetResultImagePath(imagePath);
+    cv::imwrite(resultImagePath.toStdString(), resultImage);
+}
+
+void DataHandler::ReadFromJson(QString imagePath, std::vector<std::vector<QPoint>> *boneVector)
+{
+    boneVector->clear();
+    QString jsonFile = GetJsonFilePath(imagePath);
+    QFile file(jsonFile);
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QTextStream in(&file);
+        QString line = in.readAll();
+        JsonToBoneVector(line, boneVector);
+    }
+    file.close();
+}
+
+QString DataHandler::GetJsonFilePath(QString &imagePath)
+{
+    QString prefix = imagePath.left(imagePath.lastIndexOf("."));
+    return prefix + ".json";
+}
+
+QString DataHandler::GetResultImagePath(QString &imagePath)
+{
+    QString prefix = imagePath.left(imagePath.lastIndexOf("."));
+    return prefix + ".result.png";
+}
+
+void DataHandler::SaveJsonToDisk(const rapidjson::MemoryStream::Ch *content, QString savePath)
+{
+    QString filename = savePath;
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&file);
+        stream << content << endl;
+    }
+    file.close();
+}
+
+void DataHandler::JsonToBoneVector(QString json, std::vector<std::vector<QPoint>> *boneVector)
+{
+    QByteArray ba = json.toLatin1();
+    const char *jsonCharArray = ba.data();
+
+    rapidJsonHandler.Init(boneVector);
+    Reader reader;
+    StringStream ss(jsonCharArray);
+    reader.Parse(ss, rapidJsonHandler);
 }
 
 

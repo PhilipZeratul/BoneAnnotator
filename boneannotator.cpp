@@ -9,9 +9,10 @@ BoneAnnotator::BoneAnnotator(QWidget *parent) :
     createActions();
     scribbleArea = ui->widget_ScribbleArea;
     scribbleArea->setZoomScale(ui->spinBox_Zoom->value());
+    boneVector = scribbleArea->getBoneVector();
 
 #ifdef Q_OS_WIN
-    pathSeperator = "//";
+    pathSeperator = "\\";
 #else
     pathSeperator = "/";
 #endif
@@ -22,7 +23,7 @@ BoneAnnotator::~BoneAnnotator()
     delete ui;
 }
 
-// TODO: press space to changed to next image.
+// TODO: press space to change to next image.
 void BoneAnnotator::keyReleaseEvent(QKeyEvent *event)
 {
     qInfo() << "Key pressed:" << event->text();
@@ -52,11 +53,16 @@ void BoneAnnotator::openDirectory()
     scribbleArea->setIsImageOpened(false);
 }
 
+// TODO: Create Directory.
 void BoneAnnotator::createBoneResultDir()
 {
     QString parentPath = imageDirectory.left(imageDirectory.lastIndexOf(pathSeperator));
     resultDirectory = parentPath + pathSeperator + "BoneResult";
     qInfo() << "Result Directory:" << resultDirectory;
+    QDir dir(resultDirectory);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
 }
 
 void BoneAnnotator::constructImageList(QDirIterator& dirIter)
@@ -89,11 +95,6 @@ void BoneAnnotator::constructListWidget()
     ui->listWidget_ImageList->addItems(fileNameList);
 }
 
-void BoneAnnotator::openImageInScribbleArea(const QString filePath)
-{
-    scribbleArea->openImage(filePath);
-}
-
 void BoneAnnotator::on_spinBox_Zoom_valueChanged(int arg1)
 {
     scribbleArea->setZoomScale(arg1);
@@ -104,13 +105,16 @@ void BoneAnnotator::on_listWidget_ImageList_currentItemChanged(QListWidgetItem *
 {
     if (previous != NULL)
     {
-        QString resultFilePath = resultDirectory + pathSeperator + previous->text();
-        qInfo() << "Previous Result Path:" << resultFilePath;
-        dataHandler.Serialize(scribbleArea->getBoneVector(), resultFilePath);
+        QString previousImageResultPath = resultDirectory + pathSeperator + previous->text();
+        qInfo() << "Previous Image Path:" << previousImageResultPath;
+        dataHandler.SerializeToJson(boneVector, previousImageResultPath);
+        dataHandler.SaveResultImage(scribbleArea->getResultImage(), previousImageResultPath);
     }
     if (current != NULL)
     {
-        QString filePath = imageDirectory + "/" + current->text();
-        openImageInScribbleArea(filePath);
+        QString imagePath = imageDirectory + pathSeperator + current->text();
+        QString imageResultPath = resultDirectory + pathSeperator + current->text();
+        dataHandler.ReadFromJson(imageResultPath, boneVector);
+        scribbleArea->openImage(imagePath);
     }
 }
