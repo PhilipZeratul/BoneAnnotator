@@ -42,6 +42,14 @@ FORMS += \
     scribblearea.ui
 
 # The following lines tells Qmake to use pkg-config for opencv
-QT_CONFIG -= no-pkg-config
-CONFIG  += link_pkgconfig
-PKGCONFIG += opencv
+#QT_CONFIG -= no-pkg-config
+#CONFIG  += link_pkgconfig
+#PKGCONFIG += opencv
+
+INCLUDEPATH += /usr/local/include
+LIBS += /usr/local/lib/libopencv_core.3.3.1.dylib
+LIBS += /usr/local/lib/libopencv_highgui.3.3.1.dylib
+LIBS += /usr/local/lib/libopencv_imgcodecs.3.3.1.dylib
+LIBS += /usr/local/lib/libopencv_imgproc.3.3.1.dylib
+LIBS += /usr/local/lib/libopencv_features2d.3.3.1.dylib
+LIBS += /usr/local/lib/libopencv_calib3d.3.3.1.dylib
